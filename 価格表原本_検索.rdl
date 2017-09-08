@@ -1,0 +1,3607 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb014.sdsales.net;Initial Catalog=prj_kakakugen1</ConnectString>
+        <Prompt>データ ソース DataSource1 のユーザー名とパスワードを指定してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>128b5b1f-79af-4a1c-ba1b-1474f8b2237d</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@検索語句">
+            <Value>=Parameters!検索語句.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@分類系列コード">
+            <Value>=Parameters!分類系列コード.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>------------------------------------------------
+-- 価格表原本：検索 2015/10/01
+----
+------------------------------------------------
+--declare @sel  varchar(9)=@分類c;
+SELECT
+  tbl価格表原本.分類コード
+  ,tbl価格表原本.分類系列コード 
+  ,tbl価格表原本.分類コード + '_' + tbl価格表原本.分類系列コード as 分類整理CD
+  ,isnull(mst価格表分類.分類系列名,'')+' '+ isnull(mst価格表分類.製品名,'') as 分類名
+  ,tbl価格表原本.改訂印
+  ,tbl価格表原本.品目コード
+  ,tbl価格表原本.標準価格
+ ,tbl価格表原本.品目名１
+ ,tbl価格表原本.品目名２
+ ,tbl価格表原本.仕様１
+ ,tbl価格表原本.仕様２
+  ,mst価格表分類.備考
+  ,mst価格表分類.設定日 as 設
+ ,tbl価格表原本.改訂履歴
+,tbl価格表原本.販売中止
+,tbl価格表原本.実勢価格
+  ,tbl価格表原本.代理店仕入価格
+  ,tbl価格表原本.市場価格
+  ,tbl価格表原本.営業仕入価格
+  ,tbl価格表原本.F2仕入価格
+  ,tbl価格表原本.システム部原価
+  ,tbl価格表原本.Ｍ仕入価格
+  ,tbl価格表原本.荷造運賃
+  ,tbl価格表原本.在庫有無
+  ,tbl価格表原本.ＦＯＢ価格
+  ,tbl価格表原本.標準納期   
+  ,tbl価格表原本.設定日  
+  ,tbl価格表原本.販売終了日 
+  ,tbl価格表原本.最新改訂日 
+ 
+  
+FROM
+  tbl価格表原本
+left join mst価格表分類 on tbl価格表原本.分類コード=mst価格表分類.分類コード and  tbl価格表原本.分類系列コード=mst価格表分類.分類系列コード 
+where   
+tbl価格表原本.分類コード + tbl価格表原本.分類系列コード in(@分類系列コード) 
+and CASE
+    WHEN len(@検索語句)=0 then 1                            -- len=0は全件対象。
+    WHEN charindex(@検索語句,tbl価格表原本.分類コード+tbl価格表原本.分類系列コード+isnull(tbl価格表原本.品目コード,'')+isnull(mst価格表分類.分類系列名,'')+isnull(mst価格表分類.製品名,'')+isnull(tbl価格表原本.品目名１,'')+isnull(tbl価格表原本.品目名２,'')+isnull(tbl価格表原本.仕様１,'')+isnull(tbl価格表原本.仕様２,''+isnull(mst価格表分類.備考,'')) COLLATE Japanese_CI_AS)&gt;0 then 1
+    else 0
+    END &gt; 0</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="分類コード">
+          <DataField>分類コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類系列コード">
+          <DataField>分類系列コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="改訂印">
+          <DataField>改訂印</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類整理CD">
+          <DataField>分類整理CD</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類名">
+          <DataField>分類名</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="品目コード">
+          <DataField>品目コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="標準価格">
+          <DataField>標準価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="備考">
+          <DataField>備考</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="品目名１">
+          <DataField>品目名１</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="品目名２">
+          <DataField>品目名２</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="仕様１">
+          <DataField>仕様１</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="仕様２">
+          <DataField>仕様２</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="改訂履歴">
+          <DataField>改訂履歴</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="設">
+          <DataField>設</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="販売中止">
+          <DataField>販売中止</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="実勢価格">
+          <DataField>実勢価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="代理店仕入価格">
+          <DataField>代理店仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="市場価格">
+          <DataField>市場価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="営業仕入価格">
+          <DataField>営業仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="システム部原価">
+          <DataField>システム部原価</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="F2仕入価格">
+          <DataField>F2仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="Ｍ仕入価格">
+          <DataField>Ｍ仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="荷造運賃">
+          <DataField>荷造運賃</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="在庫有無">
+          <DataField>在庫有無</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ＦＯＢ価格">
+          <DataField>ＦＯＢ価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="標準納期">
+          <DataField>標準納期</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="設定日">
+          <DataField>設定日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="最新改訂日">
+          <DataField>最新改訂日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="販売終了日">
+          <DataField>販売終了日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet2">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandText>select
+分類コード
+,分類コード+分類系列名 as 分類コード名 
+ from
+ (select
+ rank() over(partition by 分類コード order by 分類系列コード) as rk,
+分類コード,分類系列コード,分類系列名
+ from mst価格表分類) as x
+ where rk=1</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="分類コード">
+          <DataField>分類コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類コード名">
+          <DataField>分類コード名</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet3">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandText>SELECT
+mst価格表分類.分類コード
+,mst価格表分類.分類系列コード 
+,mst価格表分類.分類コード+mst価格表分類.分類系列コード as 分分系列
+,mst価格表分類.分類コード+' '+mst価格表分類.分類系列コード+' '+isnull(mst価格表分類.分類系列名,'')+isnull(mst価格表分類.製品名,'') as 系列コード群
+
+FROM
+  mst価格表分類
+where mst価格表分類.分類コード &gt;'110' --in (@分類名)
+-- where mst価格表分類.分類コード in (@分類名)</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="分類コード">
+          <DataField>分類コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="系列コード群">
+          <DataField>系列コード群</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類系列コード">
+          <DataField>分類系列コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分分系列">
+          <DataField>分分系列</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet5">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandText>SELECT
+  tbl価格表原本.分類コード
+  ,tbl価格表原本.分類系列コード
+  ,tbl価格表原本.ID
+  ,tbl価格表原本.改訂印
+  ,tbl価格表原本.品目コード
+  ,tbl価格表原本.品目名１
+  ,tbl価格表原本.品目名２
+  ,tbl価格表原本.標準価格
+  ,tbl価格表原本.営業仕入価格
+FROM
+  tbl価格表原本
+ where (dbo.tbl価格表原本.品目コード) is Not NuLL and (dbo.tbl価格表原本.営業仕入価格) is NULL</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="分類コード">
+          <DataField>分類コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類系列コード">
+          <DataField>分類系列コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ID">
+          <DataField>ID</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="改訂印">
+          <DataField>改訂印</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="品目コード">
+          <DataField>品目コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="品目名１">
+          <DataField>品目名１</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="品目名２">
+          <DataField>品目名２</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="標準価格">
+          <DataField>標準価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="営業仕入価格">
+          <DataField>営業仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet6">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandText>SELECT
+  tbl価格表原本.実勢価格
+  ,tbl価格表原本.代理店仕入価格
+  ,tbl価格表原本.市場価格
+  ,tbl価格表原本.営業仕入価格
+  ,tbl価格表原本.システム部原価
+  ,tbl価格表原本.Ｍ仕入価格
+  ,tbl価格表原本.荷造運賃
+  ,tbl価格表原本.在庫有無
+  ,tbl価格表原本.ＦＯＢ価格
+  ,tbl価格表原本.標準納期
+FROM
+  tbl価格表原本</CommandText>
+        <rd:DesignerState><QueryDefinition xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational"><SelectedColumns><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="実勢価格" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="代理店仕入価格" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="市場価格" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="営業仕入価格" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="システム部原価" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="Ｍ仕入価格" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="荷造運賃" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="在庫有無" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="ＦＯＢ価格" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="標準納期" /></SelectedColumns></QueryDefinition></rd:DesignerState>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="実勢価格">
+          <DataField>実勢価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="代理店仕入価格">
+          <DataField>代理店仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="市場価格">
+          <DataField>市場価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="営業仕入価格">
+          <DataField>営業仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="システム部原価">
+          <DataField>システム部原価</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="Ｍ仕入価格">
+          <DataField>Ｍ仕入価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="荷造運賃">
+          <DataField>荷造運賃</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="在庫有無">
+          <DataField>在庫有無</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ＦＯＢ価格">
+          <DataField>ＦＯＢ価格</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="標準納期">
+          <DataField>標準納期</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet4">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandText>SELECT
+  tbl価格表原本.最新改訂日
+  ,tbl価格表原本.設定日
+FROM
+  tbl価格表原本</CommandText>
+        <rd:DesignerState><QueryDefinition xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational"><SelectedColumns><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="最新改訂日" /><ColumnExpression ColumnOwner="tbl価格表原本" ColumnName="設定日" /></SelectedColumns></QueryDefinition></rd:DesignerState>
+      </Query>
+      <Fields>
+        <Field Name="最新改訂日">
+          <DataField>最新改訂日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="設定日">
+          <DataField>設定日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>0.79375mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>19.56105mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>37.79037mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>34.72002mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>14.39875mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>15.21054mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>14.94587mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>9.26033mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>10.00227mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>9.12495mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>6.87908mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>13.09375mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>12.56462mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>14.94583mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>13.10005mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>12.82929mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>17.85625mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>17.59167mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>15.21042mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>17.85625mm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.97291mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox14">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox14</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox10">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox10</rd:DefaultName>
+                          <ZIndex>1</ZIndex>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>2</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox51">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox51</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>12</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox45">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox45</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox65">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox65</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox35">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox35</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox36">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox36</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox44">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox44</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>10.54481mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox57">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox57</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox37">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="分　類"+vbCrLf+"品目コード"</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox37</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>品目名</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox13">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>仕様</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox13</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox17">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="標準"+vbCrLf+"価格"</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox17</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox1">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="実勢"+vbCrLf+"価格"</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox1</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox4">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="特約店"+vbCrLf+"仕入価格"</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox15">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>運賃</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox18">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>在庫有無</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox18</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox28">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>標準納期</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox28</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox19">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>市場価格</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox19</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox32">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>市場価格</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox32</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox23">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>営業仕入価格</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox23</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>F2仕入価格</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>システム部原価</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox21">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Ｍ仕入価格</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox21</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox66">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="設定日"+chr(10)+"販売終了日"</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox66</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox48">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>最新改訂日</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox48</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox38">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>摘要</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox38</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox46">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>改訂履歴</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox46</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>5.99999mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="分類名">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!分類整理CD.Value+" "+Fields!分類名.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>分類名</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>5</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox5">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox16">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox16</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox26">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox26</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox30">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox30</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox20">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox20</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox33">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox33</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox24">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox24</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox12">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox12</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox6">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox6</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox25">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox25</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox67">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox67</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox50">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox50</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox41">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox41</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox47">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox47</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>6.6614mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="品目コード">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>品目コード</rd:DefaultName>
+                          <Visibility>
+                            <Hidden>true</Hidden>
+                          </Visibility>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="品目コード1">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!品目コード.Value+chr(10)+Switch(isnothing(Fields!販売終了日.Value)," ", Fields!販売終了日.Value&gt;=Today(),"販売終了予定",Fields!販売終了日.Value&lt;Today(),"販売終了")</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>品目コード1</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="品目名１">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!品目名１.Value &amp; " " &amp; Fields!品目名２.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>品目名１</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="仕様">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!仕様１.Value  &amp; Fields!仕様２.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>仕様</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="標準価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=(Fields!標準価格.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0;- #,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>標準価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="実勢価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!実勢価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>実勢価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="代理店仕入価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!代理店仕入価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>代理店仕入価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="荷造運賃">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!荷造運賃.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>荷造運賃</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="在庫有無">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!在庫有無.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>在庫有無</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="標準納期">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!標準納期.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>標準納期</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="市場価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!市場価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>市場価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="市場価格1">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!市場価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>市場価格1</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="営業仕入価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!営業仕入価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>営業仕入価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="F2仕入価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!F2仕入価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>F2仕入価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="システム部原価">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!システム部原価.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>システム部原価</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Ｍ仕入価格">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!Ｍ仕入価格.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>#,0;(#,0)</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Ｍ仕入価格</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="設定日2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=left(cstr(Fields!設定日.Value),7)+iif(isnothing(Fields!販売終了日.Value),nothing,chr(10)+left(cstr(Fields!販売終了日.Value),10))</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>yyyy'年'M'月'</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>設定日2</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="最新改訂日">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=left(cstr(Fields!最新改訂日.Value),7)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>yyyy'年'M'月'</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>最新改訂日</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox42">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=iif(Fields!販売中止.Value,"販売終了","")</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox42</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="改訂履歴3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!改訂履歴.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>改訂履歴3</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>5.99999mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox71">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox71</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="備考">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="備考：" &amp; Fields!備考.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>備考</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                        <ColSpan>15</ColSpan>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox69">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox69</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox53">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox53</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox43">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox43</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox49">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox49</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>true</Hidden>
+                  </Visibility>
+                </TablixMember>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>=iif(Parameters!current.Value,true,false)</Hidden>
+                  </Visibility>
+                </TablixMember>
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>=iif(Parameters!current.Value,true,false)</Hidden>
+                  </Visibility>
+                </TablixMember>
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>=iif(Parameters!current.Value,true,false)</Hidden>
+                  </Visibility>
+                </TablixMember>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>true</Hidden>
+                  </Visibility>
+                </TablixMember>
+                <TablixMember>
+                  <Visibility>
+                    <Hidden>true</Hidden>
+                  </Visibility>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.79375mm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox8">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value />
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox8</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Style>None</Style>
+                          </Border>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.79375mm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox22">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value />
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox22</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Style>None</Style>
+                          </Border>
+                          <BackgroundColor>#4c68a2</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
+                </TablixMember>
+                <TablixMember>
+                  <Group Name="Group1">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!分類整理CD.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!分類整理CD.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.79375mm</Size>
+                    <CellContents>
+                      <Textbox Name="Group1">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value />
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <Color>#4d4d4d</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Group1</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#e5e5e5</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember>
+                      <KeepWithGroup>After</KeepWithGroup>
+                      <RepeatOnNewPage>true</RepeatOnNewPage>
+                    </TablixMember>
+                    <TablixMember>
+                      <Group Name="詳細" />
+                      <TablixMembers>
+                        <TablixMember />
+                      </TablixMembers>
+                    </TablixMember>
+                    <TablixMember>
+                      <KeepWithGroup>Before</KeepWithGroup>
+                      <RepeatOnNewPage>true</RepeatOnNewPage>
+                    </TablixMember>
+                  </TablixMembers>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>DataSet1</DataSetName>
+            <PageName>価格表原本</PageName>
+            <Top>1.07598mm</Top>
+            <Left>6.0831mm</Left>
+            <Height>30.1791mm</Height>
+            <Width>308.52886mm</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+        </ReportItems>
+        <Height>36.35271mm</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>325.95318mm</Width>
+      <Page>
+        <PageHeader>
+          <Height>3.51253cm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="Textbox7">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>標準納期   A：即納及び1ｹ月以内、B:1ｹ月～2ｹ月以内、C:2ｹ月以上、ブランク:ご確認要。</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>8pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox7</rd:DefaultName>
+              <Top>2.91253cm</Top>
+              <Left>0.76706cm</Left>
+              <Height>0.6cm</Height>
+              <Width>15.18963cm</Width>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="Textbox27">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>価格表原本</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox27</rd:DefaultName>
+              <Top>2.19879cm</Top>
+              <Left>0.76706cm</Left>
+              <Height>0.6cm</Height>
+              <Width>2.5cm</Width>
+              <ZIndex>1</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="PageNumber">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>Page.</Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>PageNumber</rd:DefaultName>
+              <Top>0.22931cm</Top>
+              <Left>18.90416cm</Left>
+              <Height>0.6cm</Height>
+              <Width>2.43121cm</Width>
+              <ZIndex>2</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="ExecutionTime">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!ExecutionTime</Value>
+                      <Style>
+                        <FontSize>9pt</FontSize>
+                        <Format>d</Format>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>ExecutionTime</rd:DefaultName>
+              <Top>0.22931cm</Top>
+              <Left>15.34194cm</Left>
+              <Height>0.6cm</Height>
+              <Width>3.42111cm</Width>
+              <ZIndex>3</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Image Name="Image3">
+              <Source>Embedded</Source>
+              <Value>承認欄02</Value>
+              <Sizing>FitProportional</Sizing>
+              <Top>0.10407cm</Top>
+              <Left>21.14935cm</Left>
+              <Height>3.23913cm</Height>
+              <Width>5.90747cm</Width>
+              <ZIndex>4</ZIndex>
+              <Visibility>
+                <Hidden>=iif(Parameters!current.Value,true,false)</Hidden>
+              </Visibility>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
+            </Image>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageHeader>
+        <PageHeight>21cm</PageHeight>
+        <PageWidth>29.7cm</PageWidth>
+        <LeftMargin>1cm</LeftMargin>
+        <TopMargin>0.5cm</TopMargin>
+        <BottomMargin>0.5cm</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="分類系列コード">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>DataSet3</DataSetName>
+          <ValueField>分分系列</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>分類系列コード</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>DataSet3</DataSetName>
+          <ValueField>分分系列</ValueField>
+          <LabelField>系列コード群</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="検索語句">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>検索語句</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="current">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=code.curren(Globals!ReportFolder)</Value>
+        </Values>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+  </ReportParameters>
+  <Code> 'code.paste(ReportItems!分類名.value)  カレントFolder
+ '' VBA
+public Function paste(ByVal a as string) as string      
+  return a
+End Function
+
+''code.curren(Globals!ReportFolder)
+
+public Function curren(ByVal a as string)  As Boolean        
+ dim bool=false
+ dim s1=a
+ if(InStr(s1, "営業")&gt;0) then bool=true
+
+return bool
+End Function
+
+</Code>
+  <EmbeddedImages>
+    <EmbeddedImage Name="承認欄01">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>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
+TOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrt
+KDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0oAMKkHhtNgYio3I4CwxKDVKjcjgIgTOqx0RSIiMrtKDAsMUiFyu0o
+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
+kAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9
+NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWG
+JQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY
+1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWGJQapULkdBUCY1GOjKRARldtRYFhikAqV21EAhEk9NpoCEVG5HQWm8hIDAABws8mWlkksMQAAIAzZ0jKJJQYAAIQhW1omscQAAIAwZEvLJJYYAAAQhmxpmTT13wAAAEFgiQEAAEFiiQEAAEFiiQEAAEFiiQEAAAH66qv/D5Bheb+tbAAXAAAAAElFTkSuQmCC</ImageData>
+    </EmbeddedImage>
+    <EmbeddedImage Name="承認欄02">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>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
+ABFZAQCIyAoAQERWAAAisgIAEJEVAICIrAAARGQFACAiKwAAEVkBAIjICgBARFYAACKyAgAQkRUAgIisAABEZAUAICIrAAARWQEAiMgKAEBEVgAAIrICABCRFQCAiKwAAERkBQAgIisAABFZAQCIyAoAQERWAAAisgIAEJEVAICIrAAARGQFACAiKwAAEVkBAIjICgBARFYAACKyAgAQkRUAgIisAABEZAUAICIrAAARWQEAiMgKAEBEVgAAIrICABCRFQCAiKwAAERkBQAgIisAABFZAQCIyAoAQERWAAAisgIAEJEVAICIrAAARGQFACAiKwAAEVkBAIjICgBARFYAACKyAgAQkRUAgIisAABEZAUAICIrAAARWQEAiMgKAEBEVgAAIrICABCRFQCAiKwAAERkBQAgIisAABFZAQCIyAoAQERWAAAisgIAEJEVAICIrAAARGQFACAiKwAAEVkBAIjICgBARFYAACKyAgAQkRUAgIisAABEZAUAICIrAAARWQEAiMgKAEBEVgAAIrICABCRFQCAiKwAAESO7+/v6z/nHB8f138BAIeuNwzMOK8AAERkBQAgIisAAJH++xUAAArnFQCAiKwAAERkBQAgIisAABFZAQAYdnT0/2s3sASfxI75AAAAAElFTkSuQmCC</ImageData>
+    </EmbeddedImage>
+  </EmbeddedImages>
+  <Variables>
+    <Variable Name="GGGG1">
+      <Value />
+    </Variable>
+  </Variables>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>e15c1f29-9504-4b93-87a4-0251270cfe77</rd:ReportID>
+</Report>

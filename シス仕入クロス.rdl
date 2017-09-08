@@ -1,0 +1,1026 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb011.sdsales.net;Initial Catalog=prj_seisan</ConnectString>
+        <Prompt>データ ソースへのアクセスに使用するユーザー名とパスワードを入力してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>f42fb837-977f-4034-b835-b6e46f07e65b</rd:DataSourceID>
+    </DataSource>
+    <DataSource Name="DataSource2">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb011.sdsales.net;Initial Catalog=prj_shoden</ConnectString>
+        <Prompt>データ ソースへのアクセスに使用するユーザー名とパスワードを入力してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>e22190ec-7796-49be-99ad-e62ac23293f8</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet2">
+      <Query>
+        <DataSourceName>DataSource2</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@login部署">
+            <Value>=Parameters!login部署.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SELECT
+  mst部署マスタ.部署記号
+  ,mst部署マスタ.部署名称
+  ,mst部署マスタ.ソート順
+  ,mst部署マスタ.部署形態
+FROM
+  mst部署マスタ
+where mst部署マスタ.部署形態 &gt;= '2' and mst部署マスタ.ソート順 &lt; 30
+ AND mst部署マスタ.部署記号 = CASE WHEN @login部署 IN ('AP','AH','FH') THEN mst部署マスタ.部署記号
+ELSE @login部署 END 
+
+
+order by mst部署マスタ.ソート順</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="部署記号">
+          <DataField>部署記号</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="部署名称">
+          <DataField>部署名称</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ソート順">
+          <DataField>ソート順</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="部署形態">
+          <DataField>部署形態</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet3">
+      <Query>
+        <DataSourceName>DataSource2</DataSourceName>
+        <CommandText>SELECT
+  mst管理マスタ.管理コード
+  ,mst管理マスタ.管理データ
+  ,mst管理マスタ.説明
+FROM
+  mst管理マスタ
+WHERE
+  mst管理マスタ.管理コード LIKE N'0001'</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="管理コード">
+          <DataField>管理コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="管理データ">
+          <DataField>管理データ</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="説明">
+          <DataField>説明</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet9">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@仕切年月">
+            <Value>=Parameters!仕切年月.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>with シス仕入合算 
+AS
+(
+SELECT 
+   tbl検収依頼明細.検収日 as 仕切日 
+   ,left(tbl検収依頼明細.検収日,4)+'/'+substring(tbl検収依頼明細.検収日,6,2) as 仕切年月 
+  ,tblシステム部社内注文.注文NO
+  ,tblシステム部社内注文.注文枝番
+  ,tblシステム部社内注文.依頼先部署コード
+  ,tblシステム部社内注文.部署記号
+  ,tblシステム部社内注文.指令書NO
+  ,tblシステム部社内注文.指令書NO_枝番  
+  ,tbl検収依頼明細.金額 as 確定金額
+  ,'区分'='1'
+FROM
+  tblシステム部社内注文
+inner join tbl検収依頼明細
+on  tblシステム部社内注文.注文NO=tbl検収依頼明細.依頼NO and tblシステム部社内注文.注文枝番=tbl検収依頼明細.依頼NO_枝番 
+union all
+SELECT  
+   tbl仕切明細.仕切受入日
+  ,left(tbl仕切明細.仕切受入日,4)+'/'+substring(tbl仕切明細.仕切受入日,6,2) as 仕切年月 
+  ,tbl仕切.指令書NO 
+  ,tbl仕切.指令書NO_枝番 
+  ,tbl仕切.部署記号 
+  ,'依頼元'=CASE 
+         WHEN left(tbl仕切.指令書NO,1) = 'L' THEN substring(tbl仕切.指令書NO,2,2)
+         ELSE left(tbl仕切.指令書NO,2) END  
+ 
+  ,tblシステム部社内注文.指令書NO as 指令NO
+  ,tblシステム部社内注文.指令書NO_枝番 as 指令NO_枝番
+  ,tbl仕切明細.生産仕切金額+tbl仕切明細.運送費 as 仕切額 
+  ,'区分'='2'
+FROM tbl仕切 
+inner join tbl仕切明細 on tbl仕切.指令書NO=tbl仕切明細.指令書NO and tbl仕切.指令書NO_枝番=tbl仕切明細.指令書NO_枝番 
+inner join tblシステム部社内注文 on tbl仕切.指令書NO=tblシステム部社内注文.注文NO and tbl仕切.指令書NO_枝番=tblシステム部社内注文.注文枝番
+)
+select 
+   シス仕入合算.仕切日
+  ,シス仕入合算.仕切年月 
+  ,シス仕入合算.注文NO
+  ,シス仕入合算.注文枝番
+  ,シス仕入合算.依頼先部署コード
+  ,シス仕入合算.部署記号
+  ,シス仕入合算.指令書NO
+  ,シス仕入合算.指令書NO_枝番
+  ,シス仕入合算.確定金額 
+  ,bsho.ソート順 
+from シス仕入合算
+inner join prj_shoden.dbo.mst部署マスタ as bsho on シス仕入合算.部署記号=bsho.部署記号 
+where  -- シス仕入合算.部署記号=@システム部署 and 
+仕切年月=datename("year",@仕切年月)+'/'+ datename("month",@仕切年月)</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="注文NO">
+          <DataField>注文NO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="注文枝番">
+          <DataField>注文枝番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="仕切年月">
+          <DataField>仕切年月</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="指令書NO">
+          <DataField>指令書NO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="指令書NO_枝番">
+          <DataField>指令書NO_枝番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="依頼先部署コード">
+          <DataField>依頼先部署コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="部署記号">
+          <DataField>部署記号</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="仕切日">
+          <DataField>仕切日</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="確定金額">
+          <DataField>確定金額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="ソート順">
+          <DataField>ソート順</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet1">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <CommandText>SELECT
+  tbl仕切.指令書NO 
+  ,tbl仕切.指令書NO_枝番 
+  ,tbl仕切明細.仕切受入日
+  ,tbl仕切明細.生産仕切金額+tbl仕切明細.運送費 as 仕切額
+ ,'依頼元'=CASE 
+         WHEN left(tbl仕切.指令書NO,1) = 'L' THEN substring(tbl仕切.指令書NO,2,2)
+         ELSE left(tbl仕切.指令書NO,2)
+   END  
+  ,tbl仕切.部署記号
+FROM tbl仕切
+inner join tbl仕切明細 on tbl仕切.指令書NO=tbl仕切明細.指令書NO and tbl仕切.指令書NO_枝番=tbl仕切明細.指令書NO_枝番 
+where  tbl仕切明細.仕切受入日&gt;='2014/10/01' and tbl仕切明細.仕切受入日&lt;='2014/10/31'</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="仕切受入日">
+          <DataField>仕切受入日</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="指令書NO">
+          <DataField>指令書NO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="指令書NO_枝番">
+          <DataField>指令書NO_枝番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="部署記号">
+          <DataField>部署記号</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="依頼元">
+          <DataField>依頼元</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="仕切額">
+          <DataField>仕切額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix3">
+            <TablixCorner>
+              <TablixCornerRows>
+                <TablixCornerRow>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox24">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>部署記号</Value>
+                                <Style>
+                                  <FontFamily>Tahoma</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox24</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#7292cc</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#4c68a2</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                </TablixCornerRow>
+              </TablixCornerRows>
+            </TablixCorner>
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>2.44709cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.97624cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>0.93896cm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="確定金額1">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value)</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>確定金額1</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox29">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value)</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox29</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox34">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox31</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox27">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value)</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox27</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox30">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value)</Value>
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox30</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox35">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Tahoma</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox31</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="依頼先部署コード">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!依頼先部署コード.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!依頼先部署コード.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="依頼先部署コード1">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!依頼先部署コード.Value</Value>
+                                <Style>
+                                  <FontFamily>Tahoma</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>依頼先部署コード1</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#c6daf8</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox28">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>仕入合計</Value>
+                                <Style>
+                                  <FontFamily>Tahoma</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox28</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox31">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>Chk</Value>
+                                <Style>
+                                  <FontFamily>Tahoma</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox31</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="部署記号">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!部署記号.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.9125cm</Size>
+                    <CellContents>
+                      <Textbox Name="部署記号">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!部署記号.Value</Value>
+                                <Style>
+                                  <FontFamily>Tahoma</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>部署記号</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#c6daf8</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.9125cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox26">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>Tahoma</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox26</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <KeepWithGroup>Before</KeepWithGroup>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>DataSet9</DataSetName>
+            <Top>3.21882cm</Top>
+            <Left>0.40747cm</Left>
+            <Height>1.8cm</Height>
+            <Width>7.27479cm</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+          <Textbox Name="対象部署">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>仕切部署：</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value>=Parameters!システム部署.Value</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>対象部署</rd:DefaultName>
+            <Top>1.54257cm</Top>
+            <Left>0.41275cm</Left>
+            <Height>0.6cm</Height>
+            <Width>5.39409cm</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox1">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>システム部仕入</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontSize>14pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox1</rd:DefaultName>
+            <Top>3.79413mm</Top>
+            <Left>4.07471mm</Left>
+            <Height>6.96383mm</Height>
+            <Width>85.92008mm</Width>
+            <ZIndex>2</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="ExecutionTime">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>=Globals!ExecutionTime</Value>
+                    <Style>
+                      <FontSize>8pt</FontSize>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style>
+                  <TextAlign>Right</TextAlign>
+                </Style>
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>ExecutionTime</rd:DefaultName>
+            <Top>15.4257mm</Top>
+            <Left>59.83229mm</Left>
+            <Height>6.35mm</Height>
+            <Width>30.1625mm</Width>
+            <ZIndex>3</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="納入年月1">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>仕切年月：</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                  <TextRun>
+                    <Value>=iif(datepart("yyyy",Parameters!仕切年月.Value)=1,"NULL",datepart("yyyy",Parameters!仕切年月.Value)&amp;"/"&amp;datepart("m",Parameters!仕切年月.Value))</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>納入年月1</rd:DefaultName>
+            <Top>2.44243cm</Top>
+            <Left>0.41275cm</Left>
+            <Height>0.6cm</Height>
+            <Width>4.50005cm</Width>
+            <ZIndex>4</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Height>67.25709mm</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>100.79111mm</Width>
+      <Page>
+        <PageHeight>42cm</PageHeight>
+        <PageWidth>281cm</PageWidth>
+        <LeftMargin>1.5cm</LeftMargin>
+        <RightMargin>2cm</RightMargin>
+        <TopMargin>1.5cm</TopMargin>
+        <BottomMargin>2cm</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="管理年月">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>DataSet3</DataSetName>
+          <ValueField>管理データ</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>管理年月</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="login部署">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>="AP"</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>login部署</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="sec_flg">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=iif(Parameters!login部署.Value="AP" or Parameters!login部署.Value="AH" or Parameters!login部署.Value="FH","0","1")</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>sec_flg</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="仕切年月">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Cdate(code.decstr(Parameters!管理年月.Value))</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>仕切年月</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="システム部署">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>システム部署</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+  </ReportParameters>
+  <Code>Public Function decstr(a as integer)  as string
+ Dim d,e as string  
+ 
+ d= CStr(a*10+1)
+ e=mid(d,1,4) &amp; "/" &amp; mid(d,5,2) &amp; "/"  &amp; mid(d,7,2)
+       
+ Return e
+End Function
+
+
+Public Function zero1(a as double,b as double)  as double
+ Dim c as double 
+ IF (b=0) then
+     c=0
+     else
+     c = a / b
+ END IF  
+ Return c
+End Function</Code>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>6b5b9098-e32e-4003-9840-05b6692c6b4c</rd:ReportID>
+</Report>

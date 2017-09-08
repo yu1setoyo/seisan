@@ -1,0 +1,945 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb014.sdsales.net;Initial Catalog=prj_kakakugen1</ConnectString>
+        <Prompt>データ ソース DataSource1 のユーザー名とパスワードを指定してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>a7d50968-c7c9-41fa-a7ac-5c8b3f3ebab8</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@検索語句">
+            <Value>=Parameters!検索語句.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SELECT
+  tbl改訂履歴.id
+  ,tbl改訂履歴.改訂日
+  ,tbl改訂履歴.分類コード
+  ,tbl改訂履歴.分類系列コード
+  ,tbl改訂履歴.分類名
+  ,tbl改訂履歴.改訂内容
+  ,tbl改訂履歴.システム部
+  ,tbl改訂履歴.登録日
+  ,tbl改訂履歴.更新日
+  ,tbl改訂履歴.loginid
+  ,tbl改訂履歴.主幹部署
+  ,tbl改訂履歴.登録者
+  ,tbl改訂履歴.更新者
+FROM
+  tbl改訂履歴
+where  
+CASE
+    WHEN len(@検索語句)=0 then 1                            -- len=0は全件対象。
+    WHEN charindex(@検索語句,改訂内容+システム部  COLLATE Japanese_CI_AS) &gt;0 then 1
+    else 0
+    END &gt; 0</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="改訂日">
+          <DataField>改訂日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="分類コード">
+          <DataField>分類コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類系列コード">
+          <DataField>分類系列コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="分類名">
+          <DataField>分類名</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="改訂内容">
+          <DataField>改訂内容</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="システム部">
+          <DataField>システム部</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="登録日">
+          <DataField>登録日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="更新日">
+          <DataField>更新日</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="loginid">
+          <DataField>loginid</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="主幹部署">
+          <DataField>主幹部署</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="登録者">
+          <DataField>登録者</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="更新者">
+          <DataField>更新者</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>18.91458mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>21.29583mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>25mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>49.07708mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>56.79208mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>11.50625mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>20.50208mm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>20.76667mm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>7.14097mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>改訂日</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox2</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>分類コード</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox5">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>分類系列コード</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox5</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox7">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>分類名</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox7</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>改訂内容</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>LightGrey</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <ToolTip>検索語句対象</ToolTip>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>ｼｽﾃﾑ部</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>LightGrey</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Center</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <ToolTip>検索語句対象</ToolTip>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox13">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>登録日</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox13</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox15">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>更新日</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox15</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#7292cc</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#4c68a2</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>5.73542mm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="改訂日">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!改訂日.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>d</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>改訂日</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="分類コード">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!分類コード.Value &amp; "_" &amp; Fields!分類系列コード.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>分類コード</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="分類系列コード">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!分類系列コード.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>分類系列コード</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="分類名">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!分類名.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>分類名</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="改訂内容">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!改訂内容.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>改訂内容</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="システム部">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!システム部.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>システム部</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="登録日">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!登録日.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>d</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>登録日</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="更新日">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!更新日.Value</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Format>d</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>更新日</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+                <TablixMember />
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <KeepWithGroup>After</KeepWithGroup>
+                  <RepeatOnNewPage>true</RepeatOnNewPage>
+                </TablixMember>
+                <TablixMember>
+                  <Group Name="詳細" />
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>DataSet1</DataSetName>
+            <SortExpressions>
+              <SortExpression>
+                <Value>=Fields!改訂日.Value</Value>
+                <Direction>Descending</Direction>
+              </SortExpression>
+            </SortExpressions>
+            <Top>0.45861mm</Top>
+            <Left>12.17083mm</Left>
+            <Height>12.87639mm</Height>
+            <Width>223.85457mm</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+        </ReportItems>
+        <Height>17.7475mm</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>261.0254mm</Width>
+      <Page>
+        <PageHeader>
+          <Height>9.76478mm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="Textbox18">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>Page.</Value>
+                      <Style />
+                    </TextRun>
+                    <TextRun>
+                      <Value>=Globals!PageNumber</Value>
+                      <Style />
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox18</rd:DefaultName>
+              <Top>0.20786cm</Top>
+              <Left>15.51728cm</Left>
+              <Height>0.6cm</Height>
+              <Width>4.56692cm</Width>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <VerticalAlign>Middle</VerticalAlign>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="Textbox17">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>価格表原本_価格改訂履歴</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>11pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value />
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>11pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox17</rd:DefaultName>
+              <Top>0.24667cm</Top>
+              <Left>1.21708cm</Left>
+              <Height>0.6cm</Height>
+              <Width>8.63833cm</Width>
+              <ZIndex>1</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="ExecutionTime">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!ExecutionTime</Value>
+                      <Style>
+                        <Format>d</Format>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>ExecutionTime</rd:DefaultName>
+              <Top>1.72861mm</Top>
+              <Left>100.31805mm</Left>
+              <Height>6.35mm</Height>
+              <Width>50.8mm</Width>
+              <ZIndex>2</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageHeader>
+        <PageHeight>21cm</PageHeight>
+        <PageWidth>29.7cm</PageWidth>
+        <LeftMargin>1.5cm</LeftMargin>
+        <RightMargin>0.5cm</RightMargin>
+        <TopMargin>1cm</TopMargin>
+        <BottomMargin>0.5cm</BottomMargin>
+        <ColumnSpacing>0.13cm</ColumnSpacing>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="検索語句">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>検索語句</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <EmbeddedImages>
+    <EmbeddedImage Name="HD01">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>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</ImageData>
+    </EmbeddedImage>
+    <EmbeddedImage Name="header01">
+      <MIMEType>image/png</MIMEType>
+      <ImageData>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</ImageData>
+    </EmbeddedImage>
+  </EmbeddedImages>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>89197b7f-50c0-491a-b374-ddb701d98908</rd:ReportID>
+</Report>

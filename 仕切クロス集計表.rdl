@@ -1,0 +1,2327 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+  <AutoRefresh>0</AutoRefresh>
+  <DataSources>
+    <DataSource Name="DataSource1">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb011.sdsales.net;Initial Catalog=prj_seisan</ConnectString>
+        <Prompt>データ ソースへのアクセスに使用するユーザー名とパスワードを入力してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>f42fb837-977f-4034-b835-b6e46f07e65b</rd:DataSourceID>
+    </DataSource>
+    <DataSource Name="DataSource2">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb011.sdsales.net;Initial Catalog=prj_shoden</ConnectString>
+        <Prompt>データ ソースへのアクセスに使用するユーザー名とパスワードを入力してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>e22190ec-7796-49be-99ad-e62ac23293f8</rd:DataSourceID>
+    </DataSource>
+    <DataSource Name="DataSource3">
+      <ConnectionProperties>
+        <DataProvider>SQL</DataProvider>
+        <ConnectString>Data Source=sdndb011.sdsales.net;Initial Catalog=prj_shizai</ConnectString>
+        <Prompt>データ ソースへのアクセスに使用するユーザー名とパスワードを入力してください:</Prompt>
+      </ConnectionProperties>
+      <rd:SecurityType>DataBase</rd:SecurityType>
+      <rd:DataSourceID>31de42f3-aabe-4ebf-887d-4687ca26ed0b</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="DataSet1">
+      <Query>
+        <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@仕切年月">
+            <Value>=Parameters!仕切年月.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>---------------------------------------
+-- 仕切クロス集計　2013/01/22
+---------------------------------------
+with 仕切sysmm
+ AS
+ ( 
+SELECT
+   tbl仕切.指令書NO
+  ,tbl仕切.指令書NO_枝番
+  ,tbl仕切.部署記号
+  ,'依頼元'=CASE 
+         WHEN left(tbl仕切.指令書NO,1) = 'L' THEN substring(tbl仕切.指令書NO,2,2)
+         ELSE left(tbl仕切.指令書NO,2)
+   END  
+-- ,tbl仕切.仕切完了日
+  ,tbl仕切明細.仕切日
+  ,tbl仕切明細.営業仕入金額
+  ,tbl仕切明細.生産仕切金額
+  ,tbl仕切明細.原価金額
+  ,tbl仕切明細.運送費
+  ,tbl仕切明細.仕切受入日
+  ,bsho.部署形態                ----  eigyo
+  ,bsho.ソート順                 ----- eigyo
+  ,bsho2.部署形態 as 部署形態2  ----- sys   
+  ,bsho2.ソート順 as ソート順2     ----- sys
+
+FROM
+  tbl仕切
+  inner JOIN tbl仕切明細
+  on tbl仕切.指令書NO=tbl仕切明細.指令書NO and tbl仕切.指令書NO_枝番=tbl仕切明細.指令書NO_枝番
+  left JOIN prj_shoden.dbo.mst部署マスタ as bsho on
+         CASE 
+         WHEN left(tbl仕切.指令書NO,1) = 'L' THEN substring(tbl仕切.指令書NO,2,2)
+         ELSE left(tbl仕切.指令書NO,2)
+         END  = bsho.部署記号
+  left JOIN prj_shoden.dbo.mst部署マスタ as bsho2 
+    on tbl仕切.部署記号=bsho2.部署記号
+----------
+where 
+ (bsho.部署形態='1' or bsho.部署記号='FH') 
+ AND  tbl仕切明細.仕切受入日&gt;'' 
+ and 
+ CASE 
+ WHEN @仕切年月 IS NULL then 1 -- @para入力がNULLなら判定しない。
+  WHEN datename("year",tbl仕切明細.仕切日)+'/'+datename("month",tbl仕切明細.仕切日) =  
+-- WHEN datename("year",tbl仕切.仕切完了日)+'/'+datename("month",tbl仕切.仕切完了日) =  
+ datename("year",@仕切年月)+'/'+datename("month",@仕切年月) THEN 1 
+ else 0 
+ END &gt;0
+
+UNION ALL 
+SELECT 
+
+mm.依頼NO 
+,mm.依頼NO_枝番 
+,'部署記号' = 'MM' 
+,'依頼元' = CASE 
+         WHEN left(mm.依頼NO,1) = 'L' THEN substring(mm.依頼NO,2,2)
+         ELSE left(mm.依頼NO,2)
+         END 
+,mm.納入日    -- as 仕切日  
+,mm.金額
+,mm.金額 as 金額2 
+,mm.金額 as 金額3 
+,'金額4' = 0 
+,mm.納入日 as dmy 
+,bsho.部署形態 
+,bsho.ソート順 
+,bsho2.部署形態 as 部署形態2
+,bsho2.ソート順  as ソート順2
+
+from 
+prj_shizai.dbo.発注納入履歴データ as mm 
+left JOIN prj_shoden.dbo.mst部署マスタ as bsho on 
+         CASE 
+         WHEN left(mm.依頼NO,1) = 'L' THEN substring(mm.依頼NO,2,2)
+         ELSE left(mm.依頼NO,2)       
+         END  =bsho.部署記号
+left JOIN prj_shoden.dbo.mst部署マスタ as bsho2 on 
+         'MM'=bsho2.部署記号
+----------
+where
+ (bsho.部署形態='1' or bsho.部署記号='FH') 
+ and 
+ CASE 
+ WHEN @仕切年月 IS NULL then 1 
+ WHEN datename("year",mm.納入日)+'/'+datename("month",mm.納入日) =  
+ datename("year",@仕切年月)+'/'+datename("month",@仕切年月) THEN 1 
+ else 0 
+ END &gt;0
+)
+select * from 仕切sysmm</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="指令書NO">
+          <DataField>指令書NO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="指令書NO_枝番">
+          <DataField>指令書NO_枝番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="部署記号">
+          <DataField>部署記号</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="営業仕入金額">
+          <DataField>営業仕入金額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="生産仕切金額">
+          <DataField>生産仕切金額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="仕切日">
+          <DataField>仕切日</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="原価金額">
+          <DataField>原価金額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="運送費">
+          <DataField>運送費</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="依頼元">
+          <DataField>依頼元</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="部署形態">
+          <DataField>部署形態</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="仕切受入日">
+          <DataField>仕切受入日</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ソート順">
+          <DataField>ソート順</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="部署形態2">
+          <DataField>部署形態2</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ソート順2">
+          <DataField>ソート順2</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet2">
+      <Query>
+        <DataSourceName>DataSource2</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@login部署">
+            <Value>=Parameters!login部署.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SELECT
+  mst部署マスタ.部署記号
+  ,mst部署マスタ.部署名称
+  ,mst部署マスタ.ソート順
+  ,mst部署マスタ.部署形態
+FROM
+  mst部署マスタ
+where mst部署マスタ.部署形態 = '2' and mst部署マスタ.ソート順 &lt; 30 or mst部署マスタ.部署記号='FH'
+ AND mst部署マスタ.部署記号 = CASE WHEN @login部署 IN ('AP','AH','FH') THEN mst部署マスタ.部署記号
+ELSE @login部署 END 
+
+
+order by mst部署マスタ.ソート順</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="部署記号">
+          <DataField>部署記号</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="部署名称">
+          <DataField>部署名称</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ソート順">
+          <DataField>ソート順</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="部署形態">
+          <DataField>部署形態</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet3">
+      <Query>
+        <DataSourceName>DataSource2</DataSourceName>
+        <CommandText>SELECT
+  mst管理マスタ.管理コード
+  ,mst管理マスタ.管理データ
+  ,mst管理マスタ.説明
+FROM
+  mst管理マスタ
+WHERE
+  mst管理マスタ.管理コード LIKE N'0001'</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="管理コード">
+          <DataField>管理コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="管理データ">
+          <DataField>管理データ</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="説明">
+          <DataField>説明</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet4">
+      <Query>
+        <DataSourceName>DataSource3</DataSourceName>
+        <CommandText>SELECT
+  発注納入履歴データ.納入日
+  ,発注納入履歴データ.依頼NO
+  ,発注納入履歴データ.依頼NO_枝番
+  ,発注納入履歴データ.金額
+FROM
+  発注納入履歴データ</CommandText>
+        <rd:DesignerState><QueryDefinition xmlns="http://schemas.microsoft.com/ReportingServices/QueryDefinition/Relational"><SelectedColumns><ColumnExpression ColumnOwner="発注納入履歴データ" ColumnName="納入日" /><ColumnExpression ColumnOwner="発注納入履歴データ" ColumnName="依頼NO" /><ColumnExpression ColumnOwner="発注納入履歴データ" ColumnName="依頼NO_枝番" /><ColumnExpression ColumnOwner="発注納入履歴データ" ColumnName="金額" /></SelectedColumns></QueryDefinition></rd:DesignerState>
+      </Query>
+      <Fields>
+        <Field Name="納入日">
+          <DataField>納入日</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="依頼NO">
+          <DataField>依頼NO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="依頼NO_枝番">
+          <DataField>依頼NO_枝番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="金額">
+          <DataField>金額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DataSet5">
+      <Query>
+        <DataSourceName>DataSource2</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@仕切年月">
+            <Value>=Parameters!仕切年月.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>SELECT
+  tbl社内注文テーブル.注文NO
+  ,tbl社内注文テーブル.注文枝番
+  ,tbl社内注文テーブル.仕切日
+  ,tbl社内注文テーブル.部署記号
+  ,tbl社内注文テーブル.依頼先部署コード
+  ,tbl社内注文テーブル.仕切状況
+  ,tbl社内注文明細テーブル.行番
+ ,tbl社内注文明細テーブル.確定金額 
+,tbl社内注文明細テーブル.運送料 
+,bsho_a.部署形態 
+,bsho_a.ソート順 
+,bsho_b.部署形態 as 部署形態_b 
+,bsho_b.ソート順  as ソート順_b
+
+FROM
+  tbl社内注文テーブル
+inner join tbl社内注文明細テーブル 
+  on tbl社内注文テーブル.注文NO=tbl社内注文明細テーブル.注文NO and tbl社内注文テーブル.注文枝番=tbl社内注文明細テーブル.注文枝番 
+inner join mst部署マスタ as bsho_a
+  on tbl社内注文テーブル.部署記号=bsho_a.部署記号
+inner join dbo.mst部署マスタ as bsho_b
+  on tbl社内注文テーブル.依頼先部署コード=bsho_b.部署記号
+where 
+(bsho_a.部署形態='1' or bsho_a.部署記号='FH')  
+ and
+ (bsho_b.部署形態&gt;='2' or bsho_a.部署記号='FH')  
+and
+ case 
+ WHEN @仕切年月 IS NULL then 1 -- @para入力がNULLなら判定しない。
+ WHEN datename("year",tbl社内注文テーブル.仕切日)+'/'+datename("month",tbl社内注文テーブル.仕切日) =  
+ datename("year",@仕切年月)+'/'+datename("month",@仕切年月) THEN 1 
+ else 0 
+ END &gt;0 
+and tbl社内注文テーブル.仕切状況='3'</CommandText>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+      <Fields>
+        <Field Name="注文NO">
+          <DataField>注文NO</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="注文枝番">
+          <DataField>注文枝番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="仕切日">
+          <DataField>仕切日</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="部署記号">
+          <DataField>部署記号</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="依頼先部署コード">
+          <DataField>依頼先部署コード</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="仕切状況">
+          <DataField>仕切状況</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="行番">
+          <DataField>行番</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="確定金額">
+          <DataField>確定金額</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="部署形態">
+          <DataField>部署形態</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="運送料">
+          <DataField>運送料</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="ソート順">
+          <DataField>ソート順</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="部署形態_b">
+          <DataField>部署形態_b</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ソート順_b">
+          <DataField>ソート順_b</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportSections>
+    <ReportSection>
+      <Body>
+        <ReportItems>
+          <Tablix Name="Tablix1">
+            <TablixCorner>
+              <TablixCornerRows>
+                <TablixCornerRow>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox5">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>部署</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox5</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#7292cc</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#4c68a2</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                </TablixCornerRow>
+              </TablixCornerRows>
+            </TablixCorner>
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>2.12959cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.42062cm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="営業仕入金額">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!営業仕入金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>営業仕入金額</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox11">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!営業仕入金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox9">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!営業仕入金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox12">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!営業仕入金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox12</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox3">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=code.zero1((Sum(Fields!営業仕入金額.Value+Fields!運送費.Value)-Sum(Fields!生産仕切金額.Value+Fields!運送費.Value)),Sum(Fields!生産仕切金額.Value+Fields!
+
+運送費.Value))</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>0.00%</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox3</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox4">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=code.zero1((Sum(Fields!営業仕入金額.Value+Fields!運送費.Value)-Sum(Fields!生産仕切金額.Value+Fields!運送費.Value)),Sum(Fields!生産仕切金額.Value+Fields!
+
+運送費.Value))</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>0.00%</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox4</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="部署記号">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!部署記号.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順2.Value</Value>
+                    </SortExpression>
+                    <SortExpression>
+                      <Value>=Fields!部署記号.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="部署記号">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!部署記号.Value</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>部署記号</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#c6daf8</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox10">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Right</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox10</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="依頼元">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!依頼元.Value</GroupExpression>
+                    </GroupExpressions>
+                    <Filters>
+                      <Filter>
+                        <FilterExpression>=Fields!部署形態.Value</FilterExpression>
+                        <Operator>Equal</Operator>
+                        <FilterValues>
+                          <FilterValue>1</FilterValue>
+                        </FilterValues>
+                      </Filter>
+                    </Filters>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="依頼元">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!依頼元.Value</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>依頼元</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#c6daf8</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox8">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox8</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <KeepWithGroup>Before</KeepWithGroup>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox2">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>F鞘</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox2</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <KeepWithGroup>Before</KeepWithGroup>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <KeepTogether>true</KeepTogether>
+            <DataSetName>DataSet1</DataSetName>
+            <Filters>
+              <Filter>
+                <FilterExpression>=Fields!部署形態.Value</FilterExpression>
+                <Operator>Equal</Operator>
+                <FilterValues>
+                  <FilterValue>1</FilterValue>
+                </FilterValues>
+              </Filter>
+            </Filters>
+            <Top>0.65174cm</Top>
+            <Left>0.63234cm</Left>
+            <Height>2.4cm</Height>
+            <Width>5.51564cm</Width>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+          <Textbox Name="Textbox14">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>B表：システム部仕切額(FH仕入)</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox13</rd:DefaultName>
+            <Top>3.1223cm</Top>
+            <Left>0.63234cm</Left>
+            <Height>0.42243cm</Height>
+            <Width>5.19814cm</Width>
+            <ZIndex>1</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <VerticalAlign>Top</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox13">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>A表：営業仕入額（FH仕切）　</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox13</rd:DefaultName>
+            <Top>0.07056cm</Top>
+            <Left>0.63235cm</Left>
+            <Height>0.40479cm</Height>
+            <Width>5.19814cm</Width>
+            <ZIndex>2</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Tablix Name="Tablix2">
+            <TablixCorner>
+              <TablixCornerRows>
+                <TablixCornerRow>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox7">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>部署</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox5</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#7292cc</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#4c68a2</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                </TablixCornerRow>
+              </TablixCornerRows>
+            </TablixCorner>
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>2.12959cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.42062cm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="営業仕入金額2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!生産仕切金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>営業仕入金額</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#e5e5e5</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox17">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!生産仕切金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox11</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox18">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!生産仕切金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox9</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox19">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!生産仕切金額.Value+Fields!運送費.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox12</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>#9eb6e4</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="部署記号2">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!部署記号.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順2.Value</Value>
+                    </SortExpression>
+                    <SortExpression>
+                      <Value>=Fields!部署記号.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="部署記号2">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!部署記号.Value</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Center</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>部署記号</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#c6daf8</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox15">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Right</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox10</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="依頼元2">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!依頼元.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="依頼元2">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!依頼元.Value</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>依頼元</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#c6daf8</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox16">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>9pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox8</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>#9eb6e4</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <KeepWithGroup>Before</KeepWithGroup>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <KeepTogether>true</KeepTogether>
+            <DataSetName>DataSet1</DataSetName>
+            <PageBreak>
+              <BreakLocation>End</BreakLocation>
+            </PageBreak>
+            <SortExpressions>
+              <SortExpression>
+                <Value>=Fields!部署形態2.Value</Value>
+              </SortExpression>
+              <SortExpression>
+                <Value>=Fields!ソート順2.Value</Value>
+              </SortExpression>
+            </SortExpressions>
+            <Top>3.72111cm</Top>
+            <Left>0.63234cm</Left>
+            <Height>1.8cm</Height>
+            <Width>5.51564cm</Width>
+            <ZIndex>3</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+          <Textbox Name="Textbox6">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>単位：円</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox2</rd:DefaultName>
+            <Top>0.40879mm</Top>
+            <Left>60.06879mm</Left>
+            <Height>4.34471mm</Height>
+            <Width>20.2375mm</Width>
+            <ZIndex>4</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <VerticalAlign>Middle</VerticalAlign>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+          <Tablix Name="Tablix5">
+            <TablixCorner>
+              <TablixCornerRows>
+                <TablixCornerRow>
+                  <TablixCornerCell>
+                    <CellContents>
+                      <Textbox Name="Textbox48">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value />
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox48</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#4c68a2</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixCornerCell>
+                </TablixCornerRow>
+              </TablixCornerRows>
+            </TablixCorner>
+            <TablixBody>
+              <TablixColumns>
+                <TablixColumn>
+                  <Width>2.12959cm</Width>
+                </TablixColumn>
+                <TablixColumn>
+                  <Width>2.42062cm</Width>
+                </TablixColumn>
+              </TablixColumns>
+              <TablixRows>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="確定金額">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value+Fields!運送料.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0;- #,0</Format>
+                                    <Color>#4d4d4d</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>確定金額</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox55">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value+Fields!運送料.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0;- #,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox55</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+                <TablixRow>
+                  <Height>0.6cm</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox53">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value+Fields!運送料.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0;- #,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox53</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox56">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Sum(Fields!確定金額.Value+Fields!運送料.Value)</Value>
+                                  <Style>
+                                    <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Format>#,0;- #,0</Format>
+                                    <Color>White</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox56</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <BackgroundColor>#7292cc</BackgroundColor>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
+              </TablixRows>
+            </TablixBody>
+            <TablixColumnHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="依頼先部署コード">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!依頼先部署コード.Value</GroupExpression>
+                    </GroupExpressions>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順_b.Value</Value>
+                    </SortExpression>
+                    <SortExpression>
+                      <Value>=Fields!依頼先部署コード.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="依頼先部署コード">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!依頼先部署コード.Value</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>依頼先部署コード</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.6cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox54">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Right</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox54</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                </TablixMember>
+              </TablixMembers>
+            </TablixColumnHierarchy>
+            <TablixRowHierarchy>
+              <TablixMembers>
+                <TablixMember>
+                  <Group Name="部署記号1">
+                    <GroupExpressions>
+                      <GroupExpression>=Fields!部署記号.Value</GroupExpression>
+                    </GroupExpressions>
+                    <Filters>
+                      <Filter>
+                        <FilterExpression>=Fields!部署形態.Value</FilterExpression>
+                        <Operator>Equal</Operator>
+                        <FilterValues>
+                          <FilterValue>1</FilterValue>
+                        </FilterValues>
+                      </Filter>
+                    </Filters>
+                  </Group>
+                  <SortExpressions>
+                    <SortExpression>
+                      <Value>=Fields!ソート順.Value</Value>
+                    </SortExpression>
+                  </SortExpressions>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="部署記号1">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>=Fields!部署記号.Value</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>#465678</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style>
+                              <TextAlign>Left</TextAlign>
+                            </Style>
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>部署記号1</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#9eb6e4</BackgroundColor>
+                          <VerticalAlign>Middle</VerticalAlign>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <TablixMembers>
+                    <TablixMember />
+                  </TablixMembers>
+                </TablixMember>
+                <TablixMember>
+                  <TablixHeader>
+                    <Size>0.96543cm</Size>
+                    <CellContents>
+                      <Textbox Name="Textbox52">
+                        <CanGrow>true</CanGrow>
+                        <KeepTogether>true</KeepTogether>
+                        <Paragraphs>
+                          <Paragraph>
+                            <TextRuns>
+                              <TextRun>
+                                <Value>合計</Value>
+                                <Style>
+                                  <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                                  <FontSize>8pt</FontSize>
+                                  <FontWeight>Bold</FontWeight>
+                                  <Color>White</Color>
+                                </Style>
+                              </TextRun>
+                            </TextRuns>
+                            <Style />
+                          </Paragraph>
+                        </Paragraphs>
+                        <rd:DefaultName>Textbox52</rd:DefaultName>
+                        <Style>
+                          <Border>
+                            <Color>LightGrey</Color>
+                            <Style>Solid</Style>
+                          </Border>
+                          <BackgroundColor>#7292cc</BackgroundColor>
+                          <PaddingLeft>2pt</PaddingLeft>
+                          <PaddingRight>2pt</PaddingRight>
+                          <PaddingTop>2pt</PaddingTop>
+                          <PaddingBottom>2pt</PaddingBottom>
+                        </Style>
+                      </Textbox>
+                    </CellContents>
+                  </TablixHeader>
+                  <KeepWithGroup>Before</KeepWithGroup>
+                </TablixMember>
+              </TablixMembers>
+            </TablixRowHierarchy>
+            <DataSetName>DataSet5</DataSetName>
+            <Filters>
+              <Filter>
+                <FilterExpression>=Fields!部署形態.Value</FilterExpression>
+                <Operator>Equal</Operator>
+                <FilterValues>
+                  <FilterValue>1</FilterValue>
+                </FilterValues>
+              </Filter>
+            </Filters>
+            <Top>6.2434cm</Top>
+            <Left>0.63235cm</Left>
+            <Height>1.8cm</Height>
+            <Width>5.51564cm</Width>
+            <ZIndex>5</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+            </Style>
+          </Tablix>
+          <Textbox Name="Textbox21">
+            <CanGrow>true</CanGrow>
+            <KeepTogether>true</KeepTogether>
+            <Paragraphs>
+              <Paragraph>
+                <TextRuns>
+                  <TextRun>
+                    <Value>C表：営業受入データ照合用</Value>
+                    <Style>
+                      <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <FontWeight>Bold</FontWeight>
+                    </Style>
+                  </TextRun>
+                </TextRuns>
+                <Style />
+              </Paragraph>
+            </Paragraphs>
+            <rd:DefaultName>Textbox13</rd:DefaultName>
+            <Top>5.66222cm</Top>
+            <Left>0.63234cm</Left>
+            <Height>0.40479cm</Height>
+            <Width>5.19814cm</Width>
+            <ZIndex>6</ZIndex>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <PaddingLeft>2pt</PaddingLeft>
+              <PaddingRight>2pt</PaddingRight>
+              <PaddingTop>2pt</PaddingTop>
+              <PaddingBottom>2pt</PaddingBottom>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Height>83.33522mm</Height>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Body>
+      <Width>199.01656mm</Width>
+      <Page>
+        <PageHeader>
+          <Height>0.97895cm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <ReportItems>
+            <Textbox Name="Textbox1">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>仕切クロス集計表</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>12pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox1</rd:DefaultName>
+              <Top>1.6169mm</Top>
+              <Left>6.32354mm</Left>
+              <Height>5.35041mm</Height>
+              <Width>43.25616mm</Width>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="納入年月1">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>仕切年月：</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
+                      <Value>=iif(datepart("yyyy",Parameters!仕切年月.Value)=1,"NULL",datepart("yyyy",Parameters!仕切年月.Value)&amp;"/"&amp;datepart("m",Parameters!仕切年月.Value))</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>9pt</FontSize>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>納入年月1</rd:DefaultName>
+              <Top>0.09673cm</Top>
+              <Left>5.13436cm</Left>
+              <Height>0.64088cm</Height>
+              <Width>4.50005cm</Width>
+              <ZIndex>1</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <VerticalAlign>Middle</VerticalAlign>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="ExecutionTime">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Globals!ExecutionTime</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>ExecutionTime</rd:DefaultName>
+              <Top>1.1906mm</Top>
+              <Left>99.22859mm</Left>
+              <Height>5.77671mm</Height>
+              <Width>38.36459mm</Width>
+              <ZIndex>2</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+            <Textbox Name="Textbox20">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>用紙設定=A3横　</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Center</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox1</rd:DefaultName>
+              <Top>0.09673cm</Top>
+              <Left>13.93571cm</Left>
+              <Height>0.6cm</Height>
+              <Width>3.55305cm</Width>
+              <ZIndex>3</ZIndex>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <VerticalAlign>Middle</VerticalAlign>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageHeader>
+        <PageFooter>
+          <Height>2.03729cm</Height>
+          <PrintOnFirstPage>true</PrintOnFirstPage>
+          <PrintOnLastPage>true</PrintOnLastPage>
+          <ReportItems>
+            <Textbox Name="Textbox22">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>1:Ａ表合計とＣ表合計を照合する。　　　　　　</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value />
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>2：B表FH行合計と受入リストFHを照合する。</Value>
+                      <Style>
+                        <FontFamily>ＭＳ Ｐゴシック</FontFamily>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style />
+                </Paragraph>
+              </Paragraphs>
+              <rd:DefaultName>Textbox22</rd:DefaultName>
+              <Top>0.17639cm</Top>
+              <Left>0.63235cm</Left>
+              <Height>1.35819cm</Height>
+              <Width>9.00206cm</Width>
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+                <PaddingLeft>2pt</PaddingLeft>
+                <PaddingRight>2pt</PaddingRight>
+                <PaddingTop>2pt</PaddingTop>
+                <PaddingBottom>2pt</PaddingBottom>
+              </Style>
+            </Textbox>
+          </ReportItems>
+          <Style>
+            <Border>
+              <Style>None</Style>
+            </Border>
+          </Style>
+        </PageFooter>
+        <PageHeight>29.7cm</PageHeight>
+        <PageWidth>42cm</PageWidth>
+        <LeftMargin>1.5cm</LeftMargin>
+        <RightMargin>2cm</RightMargin>
+        <TopMargin>0.5cm</TopMargin>
+        <BottomMargin>0.5cm</BottomMargin>
+        <Style />
+      </Page>
+    </ReportSection>
+  </ReportSections>
+  <ReportParameters>
+    <ReportParameter Name="管理年月">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>DataSet3</DataSetName>
+          <ValueField>管理データ</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>管理年月</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="login部署">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>="AP"</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>login部署</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="sec_flg">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=iif(Parameters!login部署.Value="AP" or Parameters!login部署.Value="AH" or Parameters!login部署.Value="FH","0","1")</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>sec_flg</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="仕切年月">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Cdate(code.decstr(Parameters!管理年月.Value))</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>仕切年月</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <Code>Public Function decstr(a as integer)  as string
+ Dim d,e as string  
+ 
+ d= CStr(a*100+1)
+ e=mid(d,1,4) &amp; "/" &amp; mid(d,5,2) &amp; "/"  &amp; mid(d,7,2)
+       
+ Return e
+End Function
+
+
+Public Function zero1(a as double,b as double)  as double
+ Dim c as double 
+ IF (b=0) then
+     c=0
+     else
+     c = a / b
+ END IF  
+ Return c
+End Function</Code>
+  <rd:ReportUnitType>Cm</rd:ReportUnitType>
+  <rd:ReportID>6b5b9098-e32e-4003-9840-05b6692c6b4c</rd:ReportID>
+</Report>
